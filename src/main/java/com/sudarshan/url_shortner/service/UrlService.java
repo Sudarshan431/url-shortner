@@ -4,8 +4,11 @@ import com.sudarshan.url_shortner.dto.UrlRequest;
 import com.sudarshan.url_shortner.dto.UrlResponse;
 import com.sudarshan.url_shortner.model.Url;
 import com.sudarshan.url_shortner.repository.UrlRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.Random;
 
 @Service
@@ -19,12 +22,19 @@ public class UrlService {
         this.urlRepository = urlRepository;
     }
 
-    public String shortenUrl(String originalUrl) {
+    public String shortenUrl(String originalUrl, Long expiryInMinutes) {
         Url url = new Url();
         url.setOriginalUrl(originalUrl);
 
         String shortCode = generateUniqueCode();
         url.setShortCode(shortCode);
+
+        if(expiryInMinutes != null) {
+            url.setExpiryDate(LocalDateTime.now().plusMinutes(expiryInMinutes));
+        }
+        else {
+            url.setExpiryDate(LocalDateTime.now().plusHours(24));
+        }
 
         urlRepository.save(url);
 
@@ -32,9 +42,16 @@ public class UrlService {
     }
 
     public String getOriginalUrl(String shortCode) {
-        return urlRepository.findByShortCode(shortCode)
-                .map(Url::getOriginalUrl)
+        Url url = urlRepository.findByShortCode(shortCode)
                 .orElseThrow(() -> new RuntimeException("URL not found"));
+
+        if (url.getExpiryDate() != null &&
+                LocalDateTime.now().isAfter(url.getExpiryDate())) {
+            throw new ResponseStatusException(
+                    HttpStatus.GONE, "Link Expired");
+        }
+
+        return url.getOriginalUrl();
     }
 
     private String generateUniqueCode() {

@@ -20,7 +20,7 @@ public class Urlcontroller {
     @PostMapping("/shorten")
     public UrlResponse shorten(@RequestBody UrlRequest urlRequest) {
         System.out.println("URL: " + urlRequest.getOriginalUrl());
-        String shortUrl = urlService.shortenUrl(urlRequest.getOriginalUrl());
+        String shortUrl = urlService.shortenUrl(urlRequest.getOriginalUrl(), urlRequest.getExpiryInMinutes());
         return new UrlResponse(shortUrl);
     }
 

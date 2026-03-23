@@ -1,0 +1,78 @@
+# ===============================
+# 🚀 Spring Boot / Maven
+# ===============================
+target/
+out/
+
+# Keep Maven wrapper jar
+!.mvn/wrapper/maven-wrapper.jar
+
+# Logs
+*.log
+
+# ===============================
+# 💻 IDE Files
+# ===============================
+
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Eclipse / STS
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache
+
+# VS Code
+.vscode/
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+
+# ===============================
+# 🖥️ OS Files
+# ===============================
+.DS_Store
+Thumbs.db
+
+# ===============================
+# 🔐 Environment & Config
+# ===============================
+
+# Env files
+.env
+
+
+# Local configs (DO NOT PUSH)
+application-dev.properties
+application-local.properties
+
+# ===============================
+# 📦 Build Artifacts
+# ===============================
+*.jar
+*.war
+*.ear
+
+# ===============================
+# 🧪 Test / Coverage
+# ===============================
+/coverage/
+/test-output/
+
+# ===============================
+# 🧹 Temp Files
+# ===============================
+*.tmp
+*.swp

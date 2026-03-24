@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.util.Random;
 
@@ -23,6 +25,10 @@ public class UrlService {
     }
 
     public String shortenUrl(String originalUrl, Long expiryInMinutes) {
+
+        validateUrl(originalUrl);
+        checkMalicious(originalUrl);
+
         Url url = new Url();
         url.setOriginalUrl(originalUrl);
 
@@ -51,6 +57,10 @@ public class UrlService {
                     HttpStatus.GONE, "Link Expired");
         }
 
+        url.setClickCount(url.getClickCount() + 1);
+
+        urlRepository.save(url);
+
         return url.getOriginalUrl();
     }
 
@@ -74,5 +84,30 @@ public class UrlService {
         }
 
         return sb.toString();
+    }
+
+    private void validateUrl(String originalUrl) {
+        try {
+            URI uri = new URI(originalUrl);
+
+            String scheme = uri.getScheme();
+
+            if(scheme == null || (!scheme.equalsIgnoreCase("http") && !scheme.equalsIgnoreCase("https"))) {
+                throw new RuntimeException("Only HTTP/HTTPS URLs allowed");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Malformed URL");
+        }
+    }
+
+    private void checkMalicious(String originalUrl) {
+
+        String lowerUrl = originalUrl.toLowerCase();
+
+        if (lowerUrl.startsWith("javascript:") ||
+                lowerUrl.startsWith("data:") ||
+                lowerUrl.startsWith("files:")) {
+            throw new RuntimeException("Malicious URL detected");
+        }
     }
 }

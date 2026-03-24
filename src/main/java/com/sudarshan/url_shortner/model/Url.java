@@ -29,6 +29,9 @@ public class Url {
     @Column(name = "expiry_date")
     private LocalDateTime expiryDate;
 
+    @Column(name = "click_count")
+    private int clickCount = 0;
+
     @PrePersist
     public void onCreate() {
         LocalDateTime now = LocalDateTime.now();
@@ -73,5 +76,13 @@ public class Url {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public int getClickCount() {
+        return clickCount;
+    }
+
+    public void setClickCount(int clickCount) {
+        this.clickCount = clickCount;
     }
 }

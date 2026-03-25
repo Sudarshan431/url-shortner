@@ -32,7 +32,11 @@ public class UrlService {
         Url url = new Url();
         url.setOriginalUrl(originalUrl);
 
-        String shortCode = generateUniqueCode();
+        url.setShortCode("temp");
+
+        urlRepository.save(url);
+
+        String shortCode = encodeBase62(url.getId());
         url.setShortCode(shortCode);
 
         if(expiryInMinutes != null) {
@@ -44,7 +48,7 @@ public class UrlService {
 
         urlRepository.save(url);
 
-        return BASE_URL + "/" + url.getShortCode();
+        return BASE_URL + "/u/" + url.getShortCode();
     }
 
     public String getOriginalUrl(String shortCode) {
@@ -64,27 +68,40 @@ public class UrlService {
         return url.getOriginalUrl();
     }
 
-    private String generateUniqueCode() {
-        String code;
-        do {
-            code = generateRandomString(6);
-        } while (urlRepository.existsByShortCode(code));
+    private static final String BASE62 = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
-        return code;
-    }
-
-    private String generateRandomString(int length) {
-        String characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    private String encodeBase62(Long id) {
         StringBuilder sb = new StringBuilder();
 
-        Random random = new Random();
-
-        for (int i = 0; i < length; i++) {
-            sb.append(characters.charAt(random.nextInt(characters.length())));
+        while (id > 0) {
+            sb.append(BASE62.charAt((int) (id % 62)));
+            id /= 62;
         }
 
-        return sb.toString();
+        return sb.reverse().toString();
     }
+
+//    private String generateUniqueCode() {
+//        String code;
+//        do {
+//            code = generateRandomString(6);
+//        } while (urlRepository.existsByShortCode(code));
+//
+//        return code;
+//    }
+
+//    private String generateRandomString(int length) {
+//        String characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+//        StringBuilder sb = new StringBuilder();
+//
+//        Random random = new Random();
+//
+//        for (int i = 0; i < length; i++) {
+//            sb.append(characters.charAt(random.nextInt(characters.length())));
+//        }
+//
+//        return sb.toString();
+//    }
 
     private void validateUrl(String originalUrl) {
         try {
